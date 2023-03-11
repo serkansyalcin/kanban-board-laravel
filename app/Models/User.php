@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable
 {
@@ -41,4 +42,25 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function setPassword($password)
+    {
+        $this->password = Hash::make($password);
+    }
+
+    public function passPasswordChallenge ($password)
+    {
+        return Hash::check($password,$this->password);
+    }
+
+    public function failPasswordChallenge($password)
+    {
+        return !$this->passPasswordChallenge($password);
+    }
+
+
+    public function workspaces()
+    {
+        return $this->hasMany(Workspace::class, 'owner_id', 'id');
+    }
 }
